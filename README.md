@@ -64,6 +64,7 @@ create_table "redirect_rules", :force => true do |t|
   t.boolean  "source_is_case_sensitive", :default => false, :null => false # Is the source regex cas sensitive or not
   t.string   "destination",                                 :null => false
   t.boolean  "active",                   :default => false                 # Should this rule be applied or not
+  t.string   "rule_type", :default => 'REWRITE'                            # REWRITE: source will show and not be changed. / REDIRECT: url will be changed to destination. 
   t.datetime "created_at",                                  :null => false
   t.datetime "updated_at",                                  :null => false
 end

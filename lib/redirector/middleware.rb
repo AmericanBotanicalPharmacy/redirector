@@ -20,10 +20,13 @@ module Redirector
 
       def response
         if redirect?
-          redirect_response
-        else
-          app.call(env)
+          if rule.rule_type == 'REWRITE'
+            rewrite_response
+          else
+            return redirect_response
+          end
         end
+        app.call(env)
       end
 
       private
@@ -71,24 +74,36 @@ module Redirector
           [%{You are being redirected <a href="#{redirect_url_string}">#{redirect_url_string}</a>}]]
       end
 
+      def rewrite_response
+        env['REQUEST_URI'] = redirect_url_string
+        if q_index = redirect_url_string.index('?')
+          env['PATH_INFO'] = redirect_url_string[0..q_index-1]
+          env['QUERY_STRING'] = redirect_url_string[q_index+1..redirect_url_string.size-1]
+        else
+          env['PATH_INFO'] = redirect_url_string
+          env['QUERY_STRING'] = ''
+        end
+        true
+      end
+
       def destination_uri
         URI.parse(matched_destination)
       rescue URI::InvalidURIError
-        rule = RedirectRule.match_for(request_path, env)
         raise Redirector::RuleError, "RedirectRule #{rule.id} generated the bad destination: #{matched_destination}"
       end
 
       def redirect_uri
         destination_uri.tap do |uri|
-          uri.scheme ||= 'http'
-          uri.host   ||= request_host
-          uri.port   ||= request_port if request_port.present?
           uri.query  ||= env['QUERY_STRING'] if Redirector.preserve_query
         end
       end
 
       def redirect_url_string
         @redirect_url_string ||= redirect_uri.to_s
+      end
+
+      def rule
+        RedirectRule.match_for(request_path, env)
       end
     end
   end

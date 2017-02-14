@@ -15,6 +15,7 @@ class RedirectRule < ActiveRecord::Base
 
   validates :source, :destination, :presence => true
   validates :active, :inclusion => { :in => ['0', '1', true, false] }
+  validates :rule_type, :inclusion => { :in => ['REWRITE', 'REDIRECT'] }
 
   before_save :strip_source_whitespace
 
