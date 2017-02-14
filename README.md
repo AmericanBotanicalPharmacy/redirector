@@ -10,7 +10,7 @@ Redirector is a Rails engine that adds a piece of middleware to the top of your 
 1. Add this to your Gemfile and then `bundle install`:
 
     ```ruby  
-    gem 'redirector'
+    gem 'redirector', git: 'https://github.com/linyunjiang/redirector'
     ```
 
 2. `$ rake redirector_engine:install:migrations`
